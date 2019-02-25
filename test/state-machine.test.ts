@@ -12,7 +12,7 @@ class ResultEnumType extends Enum<Result> {
 
   constructor() {
     super();
-    this.initEnum('Result');
+    this.initEnum();
   }
 }
 
@@ -82,7 +82,7 @@ class StateEnumType extends Enum<State> {
 
   constructor() {
     super();
-    this.initEnum('State');
+    this.initEnum();
   }
 }
 

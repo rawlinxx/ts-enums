@@ -1,4 +1,4 @@
-import {Enum, EnumValue} from '../src/ts-enums';
+import {Enum, EnumValue, Value} from '../src/ts-enums';
 
 describe('Basic Tests', () => {
   describe('simple', () => {
@@ -15,7 +15,7 @@ describe('Basic Tests', () => {
 
       constructor() {
         super();
-        this.initEnum('Color');
+        this.initEnum();
       }
     }
 
@@ -26,11 +26,11 @@ describe('Basic Tests', () => {
     });
 
     it('should handle toString', () => {
-      expect(ColorEnum.RED.toString()).toBe('Color.RED');
+      expect(ColorEnum.RED.toString()).toBe('RED');
     });
 
     it('should handle toString on the type', () => {
-      expect(ColorEnum.toString()).toBe('Color');
+      expect(ColorEnum.toString()).toBe('ColorEnumType');
     });
 
     it('should handle ordinal', () => {
@@ -38,7 +38,7 @@ describe('Basic Tests', () => {
     });
 
     it('should handle toString', () => {
-      expect(ColorEnum.GREEN.toString()).toBe('Color.GREEN');
+      expect(ColorEnum.GREEN.toString()).toBe('GREEN');
     });
 
     it('should handle byPropName', () => {
@@ -59,15 +59,6 @@ describe('Basic Tests', () => {
         ColorEnum.GREEN,
         ColorEnum.BLUE
       ]);
-    });
-
-    it('should handle closing the value', () => {
-      try {
-        let color: Color = new Color('foo');
-        fail('should have been prevented');
-      } catch (e) {
-        // no-op
-      }
     });
 
     it('should handle closing the enum', () => {
@@ -120,7 +111,7 @@ describe('Basic Tests', () => {
 
       constructor() {
         super();
-        this.initEnum('TicTacToeColor');
+        this.initEnum();
       }
     }
 
@@ -132,7 +123,7 @@ describe('Basic Tests', () => {
     });
 
     it('should handle toString', () => {
-      expect(String(TicTacToeColorEnum.O)).toBe('TicTacToeColor.O');
+      expect(String(TicTacToeColorEnum.O)).toBe('O');
     });
 
     it('should handle ordinal', () => {
@@ -158,7 +149,7 @@ describe('Basic Tests', () => {
       }
     }
 
-    class WeekdayEnumType extends Enum<Weekday> {
+    class WeekdayEnumType1 extends Enum<Weekday> {
       MONDAY: Weekday = new Weekday('MONDAY');
       TUESDAY: Weekday = new Weekday('TUESDAY');
       WEDNESDAY: Weekday = new Weekday('WEDNESDAY');
@@ -169,11 +160,11 @@ describe('Basic Tests', () => {
 
       constructor() {
         super();
-        this.initEnum('Weekday');
+        this.initEnum();
       }
     }
 
-    const WeekdayEnum: WeekdayEnumType = new WeekdayEnumType();
+    const WeekdayEnum: WeekdayEnumType1 = new WeekdayEnumType1();
 
     it('should handle a custom prototype method', () => {
       expect(WeekdayEnum.SATURDAY.isBusinessDay()).toBe(false);
@@ -204,7 +195,7 @@ describe('Basic Tests', () => {
 
       constructor() {
         super();
-        this.initEnum('Weekday (by Property)');
+        this.initEnum();
       }
     }
 
@@ -241,7 +232,7 @@ describe('Basic Tests', () => {
 
       constructor() {
         super();
-        this.initEnum('Mode');
+        this.initEnum();
       }
     }
 
@@ -263,6 +254,42 @@ describe('Basic Tests', () => {
           ModeEnum.USER_X.n |
           ModeEnum.GROUP_R.n
       ).toBe(0o740);
+    });
+  });
+
+  describe('No payload', () => {
+    class DescEnum extends Enum<Value> {
+      RED = new Value('it is red');
+      GREEN = new Value('it is green');
+      BLUE = new Value('it is blue');
+    }
+    const instance: DescEnum = new DescEnum();
+    instance.initEnum();
+
+    it('should runnable', () => {
+      expect(instance.RED.description).toBe('it is red');
+    });
+  });
+
+  describe('with payload', () => {
+    class PayloadEnum extends Enum<Value<{num: number; text: string}>> {
+      RED = new Value('it is red', {num: 5, text: '555'});
+      GREEN = new Value('it is green', {num: 6, text: '666'});
+      BLUE = new Value('it is blue', {num: 7, text: '777'});
+    }
+
+    const instance = new PayloadEnum();
+    instance.initEnum();
+
+    console.log(instance.values.map(c => c.propName));
+    console.log(instance.values.map(c => c.description));
+    console.log(instance.values.map(c => c.payload));
+    console.log(instance.values.map(c => c.toString()));
+
+    it('should runnable', () => {
+      expect(instance.RED.description).toBe('it is red');
+      expect(instance.RED.payload.num).toBe(5);
+      expect(instance.RED.payload.text).toBe('555');
     });
   });
 });

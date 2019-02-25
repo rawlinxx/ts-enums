@@ -1,32 +1,16 @@
-const INITIALIZED: symbol = Symbol();
-
 /**
  * An instance of the enum (for example, if you have an enumeration of seasons,
  * Winter would be an EnumValue.
  */
 export abstract class EnumValue {
-  private static sizes: Map<Function, number> = new Map<Function, number>();
-  private readonly _ordinal: number; // set in Enum.enumValuesFromObject
+  private _ordinal: number; // set in Enum.enumValuesFromObject
   private _propName: string; // set in Enum.enumValuesFromObject
 
   /**
    * `initEnum()` on Enum closes the class, so subsequent calls to this
    * constructor throw an exception.
    */
-  constructor(private _description: string) {
-    if ({}.hasOwnProperty.call(new.target, INITIALIZED)) {
-      throw new Error('EnumValue classes can’t be instantiated individually');
-    }
-    // keep track of the number of instances that have been created,
-    // and use it to set the ordinal
-    let size: number | undefined = EnumValue.sizes.get(this.constructor);
-    if (!size) {
-      size = 0;
-    }
-    this._ordinal = size;
-    size++;
-    EnumValue.sizes.set(this.constructor, size);
-  }
+  constructor(private _description: string) {}
 
   /**
    * The description of the instance passed into the constructor - may be the
@@ -36,10 +20,6 @@ export abstract class EnumValue {
    */
   get description(): string {
     return this._description;
-  }
-
-  toString() {
-    return `${this.constructor.name}.${this.propName}`;
   }
 
   /**
@@ -59,12 +39,19 @@ export abstract class EnumValue {
   get propName(): string {
     return this._propName;
   }
+
+  toString() {
+    return this.propName;
+  }
 }
 
-/**
- * simple wrapper that only contains description
- */
-export class Desc extends EnumValue {}
+export class Value<T = any> extends EnumValue {
+  payload?: T;
+  constructor(description: string, payload?: T) {
+    super(description);
+    this.payload = payload;
+  }
+}
 
 /**
  * This is an abstract class that is not intended to be used directly. Extend it
@@ -76,20 +63,17 @@ export abstract class Enum<T extends EnumValue> {
     string,
     EnumValue[]
   >();
-  private name: string;
+  private get name(): string {
+    return this.constructor.name;
+  }
 
   /**
    * Set up the enum and close the class. This must be called after the
    * constructor to set up the logic.
    *
-   * @param name The name that will be used for internal storage - must be
-   * unique
    * @param theEnum The enum to process
    */
-  private static initEnum<T extends EnumValue>(
-    name: string,
-    theEnum: Enum<T>
-  ): void {
+  private static initEnum<T extends EnumValue>(theEnum: Enum<T>): void {
     if (Enum.enumValues.has(theEnum.name)) {
       throw new Error(`Duplicate name: ${theEnum.name}`);
     }
@@ -111,7 +95,7 @@ export abstract class Enum<T extends EnumValue> {
   ): T[] {
     const values: T[] = Object.getOwnPropertyNames(theEnum)
       .filter((propName: string) => theEnum[propName] instanceof EnumValue)
-      .map((propName: string) => {
+      .map((propName: string, i: number) => {
         const enumValue: T = theEnum[propName];
         Object.defineProperty(enumValue, '_propName', {
           value: propName,
@@ -119,12 +103,15 @@ export abstract class Enum<T extends EnumValue> {
           writable: false,
           enumerable: true
         });
+        Object.defineProperty(enumValue, '_ordinal', {
+          value: i,
+          configurable: false,
+          writable: false,
+          enumerable: true
+        });
         Object.freeze(enumValue);
         return enumValue;
       });
-    if (values.length) {
-      values[0].constructor[INITIALIZED] = true;
-    }
 
     let descriptions: string[] = values.map(
       (value: T): string => value.description
@@ -194,8 +181,7 @@ export abstract class Enum<T extends EnumValue> {
    *
    * @param name The name that will be used for internal storage - must be unique
    */
-  protected initEnum(name: string): void {
-    this.name = name;
-    Enum.initEnum(name, this);
+  initEnum(): void {
+    Enum.initEnum(this);
   }
 }

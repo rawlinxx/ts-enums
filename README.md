@@ -16,90 +16,79 @@ Dr. Axel Rauschmeyer created [Enumify](https://github.com/rauschma/enumify) to b
 Install:
 
 ```text
-npm install ts-enums
+"dependencies": {
+    "ts-enums": "git+https://github.com/rawlinxx/ts-enums.git"
+}
 ```
 
-Use:
+Basic:
 
 ```typescript
-import {Enum, EnumValue} from 'ts-enums';
+import { Enum, Value } from 'ts-enums';
 
-export class Color extends EnumValue {
-  constructor(name: string) {
-    super(name);
-  }
-}
+class ColorEnum extends Enum<Value> {
 
-class ColorEnumType extends Enum<Color> {
-
-  RED: Color = new Color('RED name');
-  GREEN: Color = new Color('GREEN name');
-  BLUE: Color = new Color('BLUE name');
+  red = new Value('it is RED');
+  green = new Value('it is GREEN');
+  blue = new Value('it is BLUE');
 
   constructor() {
     super();
-    this.initEnum('Color');
+    this.initEnum();
   }
 }
 
-export const ColorEnum: ColorEnumType = new ColorEnumType();
+export const colorEnum = new ColorEnum();
 
 // examples of use
-console.log(ColorEnum.RED.toString()); // Color.RED
-console.log(ColorEnum.GREEN instanceof Color); // true
+console.log(colorEnum.red.propName); // 'red'
+console.log(colorEnum.red.ordinal); // 0
+console.log(colorEnum.red.description); // 'it is RED'
+console.log(colorEnum.red.toString()); // 'red'
 
-new Color();
-    // Error: EnumValue classes can’t be instantiated individually
+colorEnum.values
+
 ```
+
+With payload:
+
+```typescript
+
+class ColorEnum extends Enum<Value<{ hex: string }>> {
+
+  red = new Value('it is RED', { hex: '0xffffff' });
+  green = new Value('it is GREEN', { hex: '0xcccccc' });
+  blue = new Value('it is BLUE', { hex: '0xbbbbbb' });
+
+  constructor() {
+    super();
+    this.initEnum();
+  }
+}
+
+```
+
+
+## Properties of Enum classes
+
+Enum exposes the methods `byPropName` and `byDescription`, to extract the EnumValue instance by either the property name of the object in the Enum or the description string passed into the EnumValue's constructor, respectively:
+
+```typescript
+console.log(colorEnum.byPropName('red') === colorEnum.red); // true
+console.log(colorEnum.byDescription('it is RED') === colorEnum.red); // true
+true
+```
+
+
+## EnumValue Customization
+
+The EnumValues are full TypeScript classes, enabling you to add properties and methods (see the [tests](test) for more examples).
+
 
 Unfortunately, this is not as terse as Enumify's syntax. Here are the steps: 
 1. We define the implementation of EnumValue that defines each of the instances.
 2. We implement each instance of the EnumValue as a property on the Enum. Within the Enum, we call `initEnum()` with a unique name to set up all of the Enum-specific behavior.
 3. We export an instance of the enum so that other modules can use it.
-
-## Properties of Enum classes
-
-Enum exposes the getter `values`, which produces an Array with all enum values:
-
-```typescript
-for (const c of ColorEnum.values) {
-    console.log(c.toString());
-}
-// Output:
-// Color.RED
-// Color.GREEN
-// Color.BLUE
-```
-
-Enum exposes the methods `byPropName` and `byDescription`, to extract the EnumValue instance by either the property name of the object in the Enum or the description string passed into the EnumValue's constructor, respectively:
-
-```typescript
-console.log(ColorEnum.byPropName('RED') === ColorEnum.RED); // true
-console.log(ColorEnum.byDescription('RED name') === ColorEnum.RED); // true
-true
-```
-
-## Properties of enum values
-
-Ts-Enums adds two properties to every enum value:
-
-* `propName`: the property name of the object in the Enum.
-
-    ```repl
-    > ColorEnum.BLUE.name
-    'BLUE'
-    ```
-
-* `ordinal`: the position of the enum value within the Array `values`.
-
-    ```repl
-    > ColorEnum.BLUE.ordinal
-    2
-    ```
-
-## Adding properties to enum values
-
-The EnumValues are full TypeScript classes, enabling you to add properties and methods (see the [tests](test) for more examples).
 
 ```typescript
 import {Enum, EnumValue} from 'ts-enums';
