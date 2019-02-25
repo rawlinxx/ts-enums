@@ -62,6 +62,11 @@ export abstract class EnumValue {
 }
 
 /**
+ * simple wrapper that only contains description
+ */
+export class Desc extends EnumValue {}
+
+/**
  * This is an abstract class that is not intended to be used directly. Extend it
  * to turn your class into an enum (initialization is performed via
  * `this.initEnum()` within the constructor).
