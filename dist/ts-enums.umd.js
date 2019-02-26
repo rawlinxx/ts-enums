@@ -68,14 +68,21 @@ var EnumValue = (function () {
     };
     return EnumValue;
 }());
-var Value = (function (_super) {
-    __extends(Value, _super);
-    function Value(description, payload) {
+var Desc = (function (_super) {
+    __extends(Desc, _super);
+    function Desc() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return Desc;
+}(EnumValue));
+var Payload = (function (_super) {
+    __extends(Payload, _super);
+    function Payload(description, payload) {
         var _this = _super.call(this, description) || this;
         _this.payload = payload;
         return _this;
     }
-    return Value;
+    return Payload;
 }(EnumValue));
 /**
  * This is an abstract class that is not intended to be used directly. Extend it
@@ -203,7 +210,8 @@ var Enum = (function () {
 }());
 
 exports.EnumValue = EnumValue;
-exports.Value = Value;
+exports.Desc = Desc;
+exports.Payload = Payload;
 exports.Enum = Enum;
 
 Object.defineProperty(exports, '__esModule', { value: true });

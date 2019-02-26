@@ -45,9 +45,11 @@ export abstract class EnumValue {
   }
 }
 
-export class Value<T = any> extends EnumValue {
-  payload?: T;
-  constructor(description: string, payload?: T) {
+export class Desc extends EnumValue {}
+
+export class Payload<T> extends EnumValue {
+  payload: T;
+  constructor(description: string, payload: T) {
     super(description);
     this.payload = payload;
   }

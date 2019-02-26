@@ -1,4 +1,4 @@
-import {Enum, EnumValue, Value} from '../src/ts-enums';
+import {Enum, EnumValue, Payload, Desc} from '../src/ts-enums';
 
 describe('Basic Tests', () => {
   describe('simple', () => {
@@ -258,13 +258,18 @@ describe('Basic Tests', () => {
   });
 
   describe('No payload', () => {
-    class DescEnum extends Enum<Value> {
-      RED = new Value('it is red');
-      GREEN = new Value('it is green');
-      BLUE = new Value('it is blue');
+    class DescEnum extends Enum<Desc> {
+      RED = new Desc('it is red');
+      GREEN = new Desc('it is green');
+      BLUE = new Desc('it is blue');
     }
     const instance: DescEnum = new DescEnum();
     instance.initEnum();
+
+    console.log(instance.values);
+    console.log(instance.values.map(c => c.propName));
+    console.log(instance.values.map(c => c.description));
+    console.log(instance.values.map(c => c.toString()));
 
     it('should runnable', () => {
       expect(instance.RED.description).toBe('it is red');
@@ -272,15 +277,16 @@ describe('Basic Tests', () => {
   });
 
   describe('with payload', () => {
-    class PayloadEnum extends Enum<Value<{num: number; text: string}>> {
-      RED = new Value('it is red', {num: 5, text: '555'});
-      GREEN = new Value('it is green', {num: 6, text: '666'});
-      BLUE = new Value('it is blue', {num: 7, text: '777'});
+    class PayloadEnum extends Enum<Payload<{num: number; text: string}>> {
+      RED = new Payload('it is red', {num: 5, text: '555'});
+      GREEN = new Payload('it is green', {num: 6, text: '666'});
+      BLUE = new Payload('it is blue', {num: 7, text: '777'});
     }
 
     const instance = new PayloadEnum();
     instance.initEnum();
 
+    console.log(instance.values);
     console.log(instance.values.map(c => c.propName));
     console.log(instance.values.map(c => c.description));
     console.log(instance.values.map(c => c.payload));

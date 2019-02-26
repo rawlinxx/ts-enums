@@ -32,9 +32,11 @@ export declare abstract class EnumValue {
     readonly propName: string;
     toString(): string;
 }
-export declare class Value<T = any> extends EnumValue {
-    payload?: T;
-    constructor(description: string, payload?: T);
+export declare class Desc extends EnumValue {
+}
+export declare class Payload<T> extends EnumValue {
+    payload: T;
+    constructor(description: string, payload: T);
 }
 /**
  * This is an abstract class that is not intended to be used directly. Extend it
