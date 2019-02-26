@@ -17,20 +17,20 @@ Install:
 
 ```text
 "dependencies": {
-    "ts-enums": "git+https://github.com/rawlinxx/ts-enums.git"
+    "ts-enums": "git+https://github.com/rawlinxx/ts-enums.git#master"
 }
 ```
 
 Basic:
 
 ```typescript
-import { Enum, Value } from 'ts-enums';
+import { Enum, EnumValue, Payload, Desc } from 'ts-enums';
 
-class ColorEnum extends Enum<Value> {
+class ColorEnum extends Enum<Desc> {
 
-  red = new Value('it is RED');
-  green = new Value('it is GREEN');
-  blue = new Value('it is BLUE');
+  red = new Desc('it is RED');
+  green = new Desc('it is GREEN');
+  blue = new Desc('it is BLUE');
 
   constructor() {
     super();
@@ -54,11 +54,11 @@ With payload:
 
 ```typescript
 
-class ColorEnum extends Enum<Value<{ hex: string }>> {
+class ColorEnum extends Enum<Payload<{ hex: string }>> {
 
-  red = new Value('it is RED', { hex: '0xffffff' });
-  green = new Value('it is GREEN', { hex: '0xcccccc' });
-  blue = new Value('it is BLUE', { hex: '0xbbbbbb' });
+  red = new Payload('it is RED', { hex: '0xffffff' });
+  green = new Payload('it is GREEN', { hex: '0xcccccc' });
+  blue = new Payload('it is BLUE', { hex: '0xbbbbbb' });
 
   constructor() {
     super();

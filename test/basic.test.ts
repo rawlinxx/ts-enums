@@ -285,7 +285,7 @@ describe('Basic Tests', () => {
 
     const instance = new PayloadEnum();
     instance.initEnum();
-
+    instance.RED.payload.num;
     console.log(instance.values);
     console.log(instance.values.map(c => c.propName));
     console.log(instance.values.map(c => c.description));
