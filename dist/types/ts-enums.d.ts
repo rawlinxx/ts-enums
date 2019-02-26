@@ -4,8 +4,7 @@
  */
 export declare abstract class EnumValue {
     private _description;
-    private static sizes;
-    private readonly _ordinal;
+    private _ordinal;
     private _propName;
     /**
      * `initEnum()` on Enum closes the class, so subsequent calls to this
@@ -19,7 +18,6 @@ export declare abstract class EnumValue {
      * @returns {string} The description
      */
     readonly description: string;
-    toString(): string;
     /**
      * Returns the index of the instance in the enum (0-based)
      *
@@ -32,6 +30,11 @@ export declare abstract class EnumValue {
      * @returns {string} the property name used for this instance in the Enum
      */
     readonly propName: string;
+    toString(): string;
+}
+export declare class Value<T = any> extends EnumValue {
+    payload?: T;
+    constructor(description: string, payload?: T);
 }
 /**
  * This is an abstract class that is not intended to be used directly. Extend it
@@ -40,16 +43,14 @@ export declare abstract class EnumValue {
  */
 export declare abstract class Enum<T extends EnumValue> {
     private static enumValues;
-    private name;
+    private readonly name;
     /**
      * Set up the enum and close the class. This must be called after the
      * constructor to set up the logic.
      *
-     * @param name The name that will be used for internal storage - must be
-     * unique
      * @param theEnum The enum to process
      */
-    private static initEnum<T>(name, theEnum);
+    private static initEnum<T>(theEnum);
     /**
      * Extract the enumValues from the Enum. We set the ordinal and propName
      * properties on the EnumValue. We also freeze the objects and lock the Enum
@@ -96,5 +97,5 @@ export declare abstract class Enum<T extends EnumValue> {
      *
      * @param name The name that will be used for internal storage - must be unique
      */
-    protected initEnum(name: string): void;
+    initEnum(): void;
 }

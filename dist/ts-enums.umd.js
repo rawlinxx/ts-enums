@@ -4,7 +4,16 @@
 	(factory((global.tsEnums = global.tsEnums || {})));
 }(this, (function (exports) { 'use strict';
 
-var INITIALIZED = Symbol();
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 /**
  * An instance of the enum (for example, if you have an enumeration of seasons,
  * Winter would be an EnumValue.
@@ -15,20 +24,7 @@ var EnumValue = (function () {
      * constructor throw an exception.
      */
     function EnumValue(_description) {
-        var _newTarget = this.constructor;
         this._description = _description;
-        if ({}.hasOwnProperty.call(_newTarget, INITIALIZED)) {
-            throw new Error('EnumValue classes can’t be instantiated individually');
-        }
-        // keep track of the number of instances that have been created,
-        // and use it to set the ordinal
-        var size = EnumValue.sizes.get(this.constructor);
-        if (!size) {
-            size = 0;
-        }
-        this._ordinal = size;
-        size++;
-        EnumValue.sizes.set(this.constructor, size);
     }
     Object.defineProperty(EnumValue.prototype, "description", {
         /**
@@ -43,9 +39,6 @@ var EnumValue = (function () {
         enumerable: true,
         configurable: true
     });
-    EnumValue.prototype.toString = function () {
-        return this.constructor.name + "." + this.propName;
-    };
     Object.defineProperty(EnumValue.prototype, "ordinal", {
         /**
          * Returns the index of the instance in the enum (0-based)
@@ -70,9 +63,20 @@ var EnumValue = (function () {
         enumerable: true,
         configurable: true
     });
-    EnumValue.sizes = new Map();
+    EnumValue.prototype.toString = function () {
+        return this.propName;
+    };
     return EnumValue;
 }());
+var Value = (function (_super) {
+    __extends(Value, _super);
+    function Value(description, payload) {
+        var _this = _super.call(this, description) || this;
+        _this.payload = payload;
+        return _this;
+    }
+    return Value;
+}(EnumValue));
 /**
  * This is an abstract class that is not intended to be used directly. Extend it
  * to turn your class into an enum (initialization is performed via
@@ -81,15 +85,20 @@ var EnumValue = (function () {
 var Enum = (function () {
     function Enum() {
     }
+    Object.defineProperty(Enum.prototype, "name", {
+        get: function () {
+            return this.constructor.name;
+        },
+        enumerable: true,
+        configurable: true
+    });
     /**
      * Set up the enum and close the class. This must be called after the
      * constructor to set up the logic.
      *
-     * @param name The name that will be used for internal storage - must be
-     * unique
      * @param theEnum The enum to process
      */
-    Enum.initEnum = function (name, theEnum) {
+    Enum.initEnum = function (theEnum) {
         if (Enum.enumValues.has(theEnum.name)) {
             throw new Error("Duplicate name: " + theEnum.name);
         }
@@ -108,7 +117,7 @@ var Enum = (function () {
     Enum.enumValuesFromObject = function (theEnum) {
         var values = Object.getOwnPropertyNames(theEnum)
             .filter(function (propName) { return theEnum[propName] instanceof EnumValue; })
-            .map(function (propName) {
+            .map(function (propName, i) {
             var enumValue = theEnum[propName];
             Object.defineProperty(enumValue, '_propName', {
                 value: propName,
@@ -116,12 +125,15 @@ var Enum = (function () {
                 writable: false,
                 enumerable: true
             });
+            Object.defineProperty(enumValue, '_ordinal', {
+                value: i,
+                configurable: false,
+                writable: false,
+                enumerable: true
+            });
             Object.freeze(enumValue);
             return enumValue;
         });
-        if (values.length) {
-            values[0].constructor[INITIALIZED] = true;
-        }
         var descriptions = values.map(function (value) { return value.description; });
         if (values.length !== this.unique(descriptions).length) {
             throw new Error('All descriptions must be unique for a given enum type.' +
@@ -183,15 +195,15 @@ var Enum = (function () {
      *
      * @param name The name that will be used for internal storage - must be unique
      */
-    Enum.prototype.initEnum = function (name) {
-        this.name = name;
-        Enum.initEnum(name, this);
+    Enum.prototype.initEnum = function () {
+        Enum.initEnum(this);
     };
     Enum.enumValues = new Map();
     return Enum;
 }());
 
 exports.EnumValue = EnumValue;
+exports.Value = Value;
 exports.Enum = Enum;
 
 Object.defineProperty(exports, '__esModule', { value: true });
